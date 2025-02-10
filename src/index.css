@@ -1,0 +1,68 @@
+:root {
+  font-family: 'Segoe UI', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #333333;
+  background-color: #f5f5f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+/* SAP-like table styles */
+.MuiTableHead-root .MuiTableCell-root {
+  font-weight: 600;
+  background-color: #f0f0f0;
+  color: #333333;
+}
+
+.MuiTableRow-root:hover {
+  background-color: #f8f9fa;
+}
+
+/* SAP-like card styles */
+.MuiCard-root, .MuiPaper-root {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+  background-color: #ffffff !important;
+}
+
+/* SAP-like input styles */
+.MuiOutlinedInput-root {
+  background-color: #ffffff;
+}
+
+/* SAP-like typography */
+.MuiTypography-root {
+  color: #333333;
+}
+
+.MuiTypography-colorTextSecondary {
+  color: #666666 !important;
+}
+
+/* SAP-like icons */
+.MuiSvgIcon-root {
+  color: #666666;
+}
+
+.MuiIconButton-root:hover {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* Edit button styles */
+.MuiIconButton-root .MuiSvgIcon-root[data-testid="EditIcon"] {
+  color: #003366;
+  font-size: 1.1rem;
+}
+
+/* Dialog styles */
+.MuiDialog-paper {
+  min-width: 400px;
+}
