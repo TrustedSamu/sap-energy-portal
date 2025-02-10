@@ -30,6 +30,7 @@ import {
   TableBody,
   TableRow,
   TableCell,
+  CircularProgress,
 } from '@mui/material';
 import {
   Timeline,
@@ -73,6 +74,7 @@ export const KundenDetail = () => {
   const navigate = useNavigate();
   const [openMeterReadings, setOpenMeterReadings] = useState(false);
   const [customer, setCustomer] = useState<Customer | null>(null);
+  const [loading, setLoading] = useState(true);
   const [editDialog, setEditDialog] = useState<{
     open: boolean;
     field: string;
@@ -95,121 +97,24 @@ export const KundenDetail = () => {
     notizen: '',
   });
 
-  // Mock customer data - replace with Firebase fetch
   useEffect(() => {
-    // Simulating Firebase fetch
-    const mockCustomer: Customer = {
-      kundennummer: '4300210000552',
-      name: 'Max Mustermann',
-      adresse: {
-        strasse: 'Musterstraße',
-        hausnummer: '123',
-        plz: '48155',
-        ort: 'Münster',
-      },
-      zaehlernummer: 'ZN-987654',
-      zaehlerstaende: [
-        {
-          datum: '2024-02-10',
-          stand: 45678,
-          einheit: 'kWh',
-          erfassungsart: 'voicebot',
-          rechnungsnummer: 'RE-2024-001',
-        },
-        {
-          datum: '2024-01-10',
-          stand: 45123,
-          einheit: 'kWh',
-          erfassungsart: 'manuell',
-        },
-        {
-          datum: '2023-12-10',
-          stand: 44789,
-          einheit: 'kWh',
-          erfassungsart: 'automatisch',
-          rechnungsnummer: 'RE-2023-012',
-        },
-      ],
-      vertragsnummer: 'V-123456',
-      vertragsart: 'Stromlieferung',
-      status: 'aktiv',
-      abschlag: {
-        betrag: 89.00,
-        zahlungsrhythmus: 'monatlich',
-        naechsteFaelligkeit: '2024-03-01',
-      },
-      rechnungen: [
-        {
-          rechnungsnummer: 'RE-2024-001',
-          datum: '2024-02-10',
-          betrag: 1250.45,
-          status: 'offen',
-          zahlungsfrist: '2024-02-24',
-          verbrauchszeitraum: {
-            von: '2023-02-01',
-            bis: '2024-01-31',
-          },
-          pdfUrl: '/rechnungen/RE-2024-001.pdf',
-          typ: 'Jahresabrechnung',
-        },
-        {
-          rechnungsnummer: 'RE-2023-012',
-          datum: '2023-12-10',
-          betrag: 95.00,
-          status: 'bezahlt',
-          zahlungsfrist: '2023-12-24',
-          verbrauchszeitraum: {
-            von: '2023-11-01',
-            bis: '2023-11-30',
-          },
-          pdfUrl: '/rechnungen/RE-2023-012.pdf',
-          typ: 'Zwischenabrechnung',
-        },
-      ],
-      ticketHistory: [
-        {
-          ticketId: 'T-2024-001',
-          datum: '2024-02-10T10:15:00',
-          typ: 'Voicebot',
-          status: 'geschlossen',
-          kategorie: 'Zählerstand',
-          bearbeiter: 'AI Assistant',
-          beschreibung: 'Zählerstand erfolgreich per Voicebot erfasst',
-          prioritaet: 'Niedrig',
-        },
-        {
-          ticketId: 'T-2024-002',
-          datum: '2024-02-05T14:30:00',
-          typ: 'Anruf',
-          status: 'geschlossen',
-          kategorie: 'Rechnung',
-          bearbeiter: 'Sarah Schmidt',
-          beschreibung: 'Kunde hat Fragen zur letzten Abrechnung',
-          notizen: 'Abrechnung detailliert erklärt. Kunde zufrieden mit der Erklärung.',
-          prioritaet: 'Mittel',
-        },
-        {
-          ticketId: 'T-2024-003',
-          datum: '2024-01-15T09:00:00',
-          typ: 'Email',
-          status: 'geschlossen',
-          kategorie: 'Technisch',
-          bearbeiter: 'Michael Weber',
-          beschreibung: 'Smart Meter Installation Anfrage',
-          notizen: 'Termin für Installation vereinbart für 01.03.2024',
-          prioritaet: 'Niedrig',
-        },
-      ],
-      tarif: {
-        name: 'Ökostrom Basis',
-        grundpreis: 12.95,
-        arbeitspreis: 0.2895,
-        vertragslaufzeit: '12 Monate',
-        kuendigungsfrist: '6 Wochen',
-        besonderheiten: ['100% Ökostrom', 'CO2-neutral', 'Regionale Erzeugung'],
-      },
+    const fetchCustomerData = async () => {
+      if (!kundennummer) return;
+      
+      try {
+        setLoading(true);
+        const fetchedCustomer = await FirebaseService.getCustomer(kundennummer);
+        if (fetchedCustomer) {
+          setCustomer(fetchedCustomer);
+        }
+      } catch (error) {
+        console.error('Error fetching customer:', error);
+      } finally {
+        setLoading(false);
+      }
     };
-    setCustomer(mockCustomer);
+
+    fetchCustomerData();
   }, [kundennummer]);
 
   const handleEdit = (field: string, value: string, title: string) => {
@@ -308,10 +213,25 @@ export const KundenDetail = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   if (!customer) {
     return (
       <Box sx={{ p: 3 }}>
-        <Typography>Kunde wird geladen...</Typography>
+        <Typography>Kunde nicht gefunden</Typography>
+        <Button
+          variant="contained"
+          onClick={() => navigate('/stammdaten')}
+          sx={{ mt: 2 }}
+        >
+          Zurück zur Übersicht
+        </Button>
       </Box>
     );
   }
@@ -437,23 +357,28 @@ export const KundenDetail = () => {
               />
               <EditableListItem
                 primary="Straße"
-                value={customer.adresse.strasse}
-                field="adresse.strasse"
+                value={customer.address.street}
+                field="address.street"
               />
               <EditableListItem
-                primary="Hausnummer"
-                value={customer.adresse.hausnummer}
-                field="adresse.hausnummer"
+                primary="Stadt"
+                value={customer.address.city}
+                field="address.city"
               />
               <EditableListItem
                 primary="PLZ"
-                value={customer.adresse.plz}
-                field="adresse.plz"
+                value={customer.address.postal_code}
+                field="address.postal_code"
               />
               <EditableListItem
-                primary="Ort"
-                value={customer.adresse.ort}
-                field="adresse.ort"
+                primary="Land"
+                value={customer.address.country}
+                field="address.country"
+              />
+              <EditableListItem
+                primary="Hotline PIN"
+                value={customer.hotline_password}
+                field="hotline_password"
               />
               <EditableListItem
                 primary="Vertragsnummer"
@@ -575,7 +500,9 @@ export const KundenDetail = () => {
                   Aktueller Stand
                 </Typography>
                 <Typography variant="body1">
-                  {customer.zaehlerstaende[0].stand.toLocaleString('de-DE')} {customer.zaehlerstaende[0].einheit}
+                  {customer.zaehlerstaende && customer.zaehlerstaende.length > 0 
+                    ? `${customer.zaehlerstaende[0].stand.toLocaleString('de-DE')} ${customer.zaehlerstaende[0].einheit}`
+                    : 'Keine Zählerstände vorhanden'}
                 </Typography>
               </Grid>
             </Grid>
@@ -596,23 +523,29 @@ export const KundenDetail = () => {
             <Collapse in={openMeterReadings} timeout="auto" unmountOnExit>
               <Divider sx={{ my: 2 }} />
               <List dense>
-                {customer.zaehlerstaende.map((reading, index) => (
-                  <ListItem key={reading.datum}>
-                    <ListItemText
-                      primary={`${reading.stand.toLocaleString('de-DE')} ${reading.einheit}`}
-                      secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <span>{new Date(reading.datum).toLocaleDateString('de-DE')}</span>
-                          <Chip
-                            label={reading.erfassungsart}
-                            color={getErfassungsartColor(reading.erfassungsart)}
-                            size="small"
-                          />
-                        </Box>
-                      }
-                    />
+                {customer.zaehlerstaende && customer.zaehlerstaende.length > 0 ? (
+                  customer.zaehlerstaende.map((reading, index) => (
+                    <ListItem key={reading.datum}>
+                      <ListItemText
+                        primary={`${reading.stand.toLocaleString('de-DE')} ${reading.einheit}`}
+                        secondary={
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <span>{new Date(reading.datum).toLocaleDateString('de-DE')}</span>
+                            <Chip
+                              label={reading.erfassungsart}
+                              color={getErfassungsartColor(reading.erfassungsart)}
+                              size="small"
+                            />
+                          </Box>
+                        }
+                      />
+                    </ListItem>
+                  ))
+                ) : (
+                  <ListItem>
+                    <ListItemText primary="Keine Zählerstände vorhanden" />
                   </ListItem>
-                ))}
+                )}
               </List>
             </Collapse>
           </Paper>
@@ -697,7 +630,16 @@ export const KundenDetail = () => {
                   );
                   
                   return (
-                    <TableRow key={rechnung.rechnungsnummer}>
+                    <TableRow
+                      key={rechnung.rechnungsnummer}
+                      onClick={() => handleRowClick(customer.kundennummer)}
+                      sx={{ 
+                        cursor: 'pointer',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                        }
+                      }}
+                    >
                       <TableCell>
                         {new Date(rechnung.datum).toLocaleDateString('de-DE')}
                       </TableCell>

@@ -1,12 +1,18 @@
+import { TariffDocument } from '../services/firebase';
+
 export interface Customer {
   kundennummer: string;
+  customer_number: string;
   name: string;
-  adresse: {
-    strasse: string;
-    hausnummer: string;
-    plz: string;
-    ort: string;
+  address: {
+    street: string;
+    postal_code: string;
+    city: string;
+    country: string;
   };
+  hotline_password: string;
+  created_at: string;
+  updated_at: string;
   zaehlernummer: string;
   zaehlerstaende: MeterReading[];
   vertragsnummer: string;
@@ -19,14 +25,7 @@ export interface Customer {
     naechsteFaelligkeit: string;
   };
   rechnungen: Invoice[];
-  tarif: {
-    name: string;
-    grundpreis: number;  // Base price per month
-    arbeitspreis: number;  // Price per kWh
-    vertragslaufzeit: string;  // Contract duration
-    kuendigungsfrist: string;  // Notice period
-    besonderheiten?: string[];  // Special features like green energy, etc.
-  };
+  tarif: TariffDocument;
 }
 
 export interface MeterReading {
