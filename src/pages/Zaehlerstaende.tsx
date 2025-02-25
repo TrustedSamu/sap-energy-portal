@@ -14,7 +14,7 @@ import {
   Chip,
 } from '@mui/material';
 import { Search } from '@mui/icons-material';
-import type { Customer, MeterReading } from '../types/customer';
+import type { MeterReading } from '../types/customer';
 
 export const Zaehlerstaende = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -93,7 +93,7 @@ export const Zaehlerstaende = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredReadings.map((reading, index) => (
+            {filteredReadings.map((reading) => (
               <TableRow key={`${reading.kundennummer}-${reading.datum}`}>
                 <TableCell>{reading.kundennummer}</TableCell>
                 <TableCell>{reading.name}</TableCell>

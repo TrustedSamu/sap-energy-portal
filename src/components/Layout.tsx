@@ -25,7 +25,7 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
       </Toolbar>
       <List>
         {menuItems.map((item) => (
-          <ListItem button key={item.text} onClick={() => navigate(item.path)}>
+          <ListItem component="div" sx={{ cursor: 'pointer' }} key={item.text} onClick={() => navigate(item.path)}>
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>

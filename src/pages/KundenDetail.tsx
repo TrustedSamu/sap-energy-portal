@@ -9,7 +9,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  ListItemIcon,
   Collapse,
   IconButton,
   Button,
@@ -45,7 +44,6 @@ import {
   ExpandLess,
   ExpandMore,
   Person,
-  Home,
   Assignment,
   Speed,
   History,
@@ -57,16 +55,13 @@ import {
   Email as EmailIcon,
   Chat as ChatIcon,
   SmartToy as VoicebotIcon,
-  PriorityHigh,
   Add as AddIcon,
-  Description as DescriptionIcon,
   Receipt as ReceiptIcon,
   AttachMoney as MoneyIcon,
   PictureAsPdf as PdfIcon,
-  CalendarToday as CalendarIcon,
   BoltOutlined as EnergyIcon,
 } from '@mui/icons-material';
-import type { Customer, MeterReading, Ticket } from '../types/customer';
+import type { Customer, Ticket } from '../types/customer';
 import { FirebaseService } from '../services/firebase';
 
 export const KundenDetail = () => {
@@ -203,16 +198,6 @@ export const KundenDetail = () => {
     });
   };
 
-  // Add new handler for Abschlag updates
-  const handleAbschlagUpdate = async (field: string, value: string) => {
-    if (customer) {
-      const updatedCustomer = { ...customer };
-      (updatedCustomer.abschlag as any)[field] = field === 'betrag' ? parseFloat(value) : value;
-      setCustomer(updatedCustomer);
-      // Here you would call FirebaseService to update the customer
-    }
-  };
-
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -287,19 +272,6 @@ export const KundenDetail = () => {
       case 'in Bearbeitung':
         return 'warning';
       case 'geschlossen':
-        return 'success';
-      default:
-        return 'default';
-    }
-  };
-
-  const getPriorityColor = (prioritaet: string) => {
-    switch (prioritaet) {
-      case 'Hoch':
-        return 'error';
-      case 'Mittel':
-        return 'warning';
-      case 'Niedrig':
         return 'success';
       default:
         return 'default';
@@ -524,7 +496,7 @@ export const KundenDetail = () => {
               <Divider sx={{ my: 2 }} />
               <List dense>
                 {customer.zaehlerstaende && customer.zaehlerstaende.length > 0 ? (
-                  customer.zaehlerstaende.map((reading, index) => (
+                  customer.zaehlerstaende.map((reading) => (
                     <ListItem key={reading.datum}>
                       <ListItemText
                         primary={`${reading.stand.toLocaleString('de-DE')} ${reading.einheit}`}
@@ -632,7 +604,7 @@ export const KundenDetail = () => {
                   return (
                     <TableRow
                       key={rechnung.rechnungsnummer}
-                      onClick={() => handleRowClick(customer.kundennummer)}
+                      onClick={() => navigate(`/stammdaten/${customer.kundennummer}`)}
                       sx={{ 
                         cursor: 'pointer',
                         '&:hover': {
@@ -675,7 +647,10 @@ export const KundenDetail = () => {
                       <TableCell>
                         <IconButton
                           size="small"
-                          onClick={() => window.open(rechnung.pdfUrl, '_blank')}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            window.open(rechnung.pdfUrl, '_blank');
+                          }}
                           color="primary"
                         >
                           <PdfIcon />
